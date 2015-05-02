@@ -1,0 +1,1 @@
+This game was created as a final term project, in Semester 3,  in an OpenGL course.  It was created by both Ryan Hammond and Max Mccraw.
