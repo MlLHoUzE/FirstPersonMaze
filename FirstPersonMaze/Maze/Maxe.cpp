@@ -1,12 +1,20 @@
 #include "Texture.h"
 #include<GL/glut.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <math.h>
+#include <vector>
 /*
-				BY MAX MCCRAW AND RYAN HAMMOND
+				
 
 */
 
 #define checkImageWidth 64		//set up for textures
 #define checkImageHeight 64		//set up for textures
+#define smallSize 10
+#define medSize 25
+#define largeSize 50
 static GLubyte checkImage[checkImageHeight][checkImageWidth][4];	//set up for textures
 
 static GLuint texName;
@@ -22,42 +30,170 @@ Texture floorTexture;	//unique texture name 2
 Texture startTexture;
 Texture exitTexture;
 
-int maze[10][10] = 
-{ 
-{1,1,1,1,1,1,1,1,1,1},
-{1,2,0,0,0,0,0,1,3,1},
-{1,1,1,1,0,1,0,0,0,1},
-{1,0,0,0,0,1,1,1,0,1},
-{1,0,1,0,1,1,2,1,0,1},
-{1,0,1,0,1,1,0,1,0,1},
-{1,0,1,0,0,1,0,1,0,1},
-{1,0,1,1,0,1,0,1,0,1},
-{1,4,1,1,2,1,0,0,0,1},
-{1,1,1,1,1,1,1,1,1,1}
+
+enum mapSize
+{
+	Small,
+	Medium,
+	Large
 };
+
+mapSize size = Small;
+
+
+int smallMaze[10][10];
+std::vector<int> v_Maze;
+int** maze = new int*[smallSize];
+
+
+
+void loadSmall()
+{
+	int n = 0;
+	int num;
+	int j = 0;
+	int tempi = 0;
+	int randint = rand() / (10 + 1) * 10 - 0;
+	std::string rand = std::to_string(randint);
+	std::string fileName1 = "1small.txt";//rand + "small.txt";
+	const char *fileName2 = fileName1.c_str();
+	FILE* pFile;
+	pFile = fopen(fileName2, "r");
+	//array
+	/*for (int i = 0; i < smallSize; i++)
+	{
+		for (int j = 0; j < smallSize; j++)
+		{
+			fscanf(pFile, "%d", &n);
+			printf("(%d,%d) = %d\n", i, j, n);
+			maze[i][j] = n;
+		}
+	}*/
+	//array player spawn
+	/*for (int i = 0; i < smallSize; i++)
+	{
+	for (int j = 0; j < smallSize; j++)
+	{
+	if (maze[i][j] == 4)
+	{
+	playerX = j;
+	playerY = i;
+	}
+	}
+	}*/
+	//vector
+	for (int i = 0; i < 100; i++)
+	{
+		fscanf(pFile, "%d", &n);
+		v_Maze.push_back(n);
+	}
+	//vector set player spawn
+	for (int i = 0; i < v_Maze.size(); i++) {
+		
+		if (v_Maze[i] == 4)
+		{
+			playerX = j;
+			playerY = i - j*10;
+		}
+		//tempi++;
+		if (i%9 == 0 && i != 0)
+		{
+			j++;
+			tempi = i - j * 10;
+			tempi++;
+		}
+		
+	}
+	
+}
+void loadMedium()
+{
+	int n = 0;
+	int num;
+	int randint = rand() / (10 + 1) * 10 - 0;
+	std::string rand = std::to_string(randint);
+	std::string fileName1 = rand + "medium.txt";
+	const char *fileName2 = fileName1.c_str();
+	FILE* pFile;
+	pFile = fopen(fileName2, "r");
+	//array
+	for (int i = 0; i < medSize; i++)
+	{
+		for (int j = 0; j < medSize; j++)
+		{
+			fscanf(pFile, "%d", &n);
+			printf("(%d,%d) = %d\n", i, j, n);
+			maze[i][j] = n;
+		}
+	}
+	//vector
+	for (int i = 0; i < medSize; i++)
+	{
+		fscanf(pFile, "%d", &n);
+		v_Maze.push_back(n);
+	}
+}
+
+void loadLarge()
+{
+	int n = 0;
+	int num;
+	int randint = rand() / (10 + 1) * 10 - 0;
+	std::string rand = std::to_string(randint);
+	std::string fileName1 = rand + "large.txt";
+	const char *fileName2 = fileName1.c_str();
+	FILE* pFile;
+	pFile = fopen(fileName2, "r");
+	//array
+	for (int i = 0; i < largeSize; i++)
+	{
+		for (int j = 0; j < largeSize; j++)
+		{
+			fscanf(pFile, "%d", &n);
+			printf("(%d,%d) = %d\n", i, j, n);
+			maze[i][j] = n;
+		}
+	}
+	//vector
+	for (int i = 0; i < largeSize; i++)
+	{
+		fscanf(pFile, "%d", &n);
+		v_Maze.push_back(n);
+	}
+}
 
 void init()
 {
 	glClearColor(0.5, 0.0, 0.5, 0.0);
 	//glShadeModel(); // GL_FLAT || GL_SMOOTH
 
-	for (int i = 0; i < 10; i++)
+
+	switch (size)
 	{
-		for (int j = 0; j < 10; j++)
-		{
-			if (maze[i][j] == 4)
-			{
-				playerX = j;
-				playerY = i;
-			}
-		}
+	case Small:
+		//for (int i = 0; i < smallSize; i++)
+			//maze[i] = new int[smallSize];
+		loadSmall();
+		break;
+	case Medium:
+		loadMedium();
+		break;
+	case Large:
+		loadLarge();
+		break;
+	default:
+		std::cout << "you suck";
+		break;
 	}
+
+	
+	
 }
 void firstTexture()	//load first texture
 {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	glGenTextures(1, &wallTexture.texID);
+	
 
 	glBindTexture(GL_TEXTURE_2D, wallTexture.texID);
 
@@ -75,7 +211,7 @@ void secondTexture()	//load first texture
 {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	glGenTextures(1, &floorTexture.texID);
+	
 
 	glBindTexture(GL_TEXTURE_2D, floorTexture.texID);
 
@@ -93,7 +229,7 @@ void thirdTexture()	//load first texture
 {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	glGenTextures(1, &startTexture.texID);
+	
 
 	glBindTexture(GL_TEXTURE_2D, startTexture.texID);
 
@@ -111,7 +247,7 @@ void fourthTexture()	//load first texture
 {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	glGenTextures(1, &exitTexture.texID);
+	
 
 	glBindTexture(GL_TEXTURE_2D, exitTexture.texID);
 
@@ -124,6 +260,7 @@ void fourthTexture()	//load first texture
 
 	glTexImage2D(GL_TEXTURE_2D, 0, exitTexture.bpp / 8, exitTexture.width, exitTexture.height, 0, exitTexture.type, GL_UNSIGNED_BYTE, exitTexture.imageData);
 }
+
 void drawCube(float x, float y)
 {
 	firstTexture();
@@ -199,7 +336,7 @@ void display()
 	//gluLookAt(playerX-1.0, playerY-1.0, 5.0, playerX, playerY, 0.0, 0.0, 1.0, 0.0);
 	if (lookX == 0)
 	{
-		cameraX = playerX + 0.5;
+		cameraX = playerX +0.5;
 
 		if (lookY > 0)
 			cameraY = playerY;
@@ -227,8 +364,10 @@ void display()
 	glTexCoord3f(10.0, 10.0, 0.0); glVertex3f(10.0, 10.0, 0.0);
 	glTexCoord3f(0.0, 10.0, 0.0); glVertex3f(0.0, 10.0, 0.0);
 	glEnd();
-
-	for (int i = 0; i < 10; i++)
+	int j = 0;
+	int tempi = 0;
+	int drawSize = 0;
+	/*for (int i = 0; i < 10; i++)
 	{
 		for (int j = 0; j < 10; j++)
 		{
@@ -236,15 +375,7 @@ void display()
 			{
 				glColor3f(1.0, 1.0, 1.0);
 				drawCube(j, i);
-				/*
-				glColor3f(1.0, 1.0, 1.0);
-				glBegin(GL_QUADS);
-				glVertex3f(j,i,0.0);
-				glVertex3f(j+1,i,0.0);
-				glVertex3f(j+1,i+1,0.0);
-				glVertex3f(j,i+1,0.0);
-				glEnd();
-				*/
+				
 			}
 			else if (maze[i][j] == 2)
 			{
@@ -254,15 +385,7 @@ void display()
 				glutSolidSphere(0.25, 25, 25);
 				glPopMatrix();
 
-				/*
-				glColor3f(1.0, 1.0, 0.0);
-				glBegin(GL_QUADS);
-				glVertex3f(j, i, 0.0);
-				glVertex3f(j + 1, i, 0.0);
-				glVertex3f(j + 1, i + 1, 0.0);
-				glVertex3f(j, i + 1, 0.0);
-				glEnd();
-				*/
+			
 			}
 			else if (maze[i][j] == 3)
 			{
@@ -277,15 +400,7 @@ void display()
 				glTexCoord3f(0.0, 1.0, 0.0); glVertex3f(1.0, 0.0, 0.01);
 				glEnd();
 				glPopMatrix();
-				/*
-				glColor3f(0.0, 1.0, 1.0);
-				glBegin(GL_QUADS);
-				glVertex3f(j, i, 0.0);
-				glVertex3f(j + 1, i, 0.0);
-				glVertex3f(j + 1, i + 1, 0.0);
-				glVertex3f(j, i + 1, 0.0);
-				glEnd();
-				*/
+				
 			}
 			else if (maze[i][j] == 4)
 			{
@@ -300,35 +415,41 @@ void display()
 				glTexCoord3f(1.0, 0.0, 0.0); glVertex3f(1.0, 0.0, 0.01);
 				glEnd();
 				glPopMatrix();
-				/*
-				glColor3f(0.0, 1.0, 0.0);
-				glBegin(GL_QUADS);
-				glVertex3f(j, i, 0.0);
-				glVertex3f(j + 1, i, 0.0);
-				glVertex3f(j + 1, i + 1, 0.0);
-				glVertex3f(j, i + 1, 0.0);
-				glEnd();
-				*/
+			
 			}
 		}
+	}*/
+	switch (size) {
+	case Small:
+		drawSize = smallSize;
+		break;
+	case Medium:
+		drawSize = medSize;
+		break;
+	case Large:
+		drawSize = largeSize;
+		break;
+	default:
+		drawSize = smallSize;
+		break;
 	}
 
-
-	//glColor3f(0.0, 0.0, 1.0);
-	//drawCube(playerX, playerY);
-	/*
-	glColor3f(0.0, 0.0, 1.0);
-	glBegin(GL_QUADS);
-	glVertex3f(playerX, playerY, 0.0);
-	glVertex3f(playerX + 1, playerY, 0.0);
-	glVertex3f(playerX + 1, playerY + 1, 0.0);
-	glVertex3f(playerX, playerY + 1, 0.0);
-	glEnd();
-	*/
-
-	
-
-
+	for (int i = 0; i < v_Maze.size(); i++)
+	{
+		
+		if (v_Maze[i] == 1)
+		{
+			
+			glColor3f(1.0, 1.0, 1.0);
+			drawCube(j, tempi);
+		}
+		tempi++;
+		if (i%drawSize == 0 && i != 0)
+		{
+			j++;
+			tempi = i - j * 10;
+		}
+	}
 	glutSwapBuffers();
 }
 
@@ -460,6 +581,11 @@ int main(int argc, char **argv)
 	LoadTGA(&floorTexture, "Floor.tga");
 	LoadTGA(&startTexture, "Start2.tga");
 	LoadTGA(&exitTexture, "Exit.tga");
+
+	glGenTextures(1, &wallTexture.texID);
+	glGenTextures(1, &floorTexture.texID);
+	glGenTextures(1, &startTexture.texID);
+	glGenTextures(1, &exitTexture.texID);
 	//Initialize glut library
 	glutInit(&argc, argv);
 	//Set initial display mode for new context
